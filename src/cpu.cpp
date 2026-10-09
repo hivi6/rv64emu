@@ -2,25 +2,25 @@
 
 namespace rv64emu {
 
-Cpu::Cpu() : x{}, pc{} {}
+Cpu::Cpu() : vX{}, vPc{} {}
 
 uint64_t Cpu::readPC() const {
-	return pc;
+	return vPc;
 }
 
 uint64_t Cpu::readX(size_t index) const {
-	return x.at(index);
+	return vX.at(index);
 }
 
 void Cpu::writePC(uint64_t value) {
-	pc = value;
+	vPc = value;
 }
 
 void Cpu::writeX(size_t index, uint64_t value) {
 	// write protect register 0
 	if (index == 0) return;
 
-	x.at(index) = value;
+	vX.at(index) = value;
 }
 
 }

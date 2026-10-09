@@ -5,8 +5,8 @@
 namespace rv64emu {
 
 class Cpu {
-	std::array<uint64_t, 32> x;  // Register for the cpu
-	uint64_t                 pc; // Program counter
+	std::array<uint64_t, 32> vX;  // Register for the cpu
+	uint64_t                 vPc; // Program counter
 
 public:
 	/**
