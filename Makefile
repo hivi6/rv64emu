@@ -11,8 +11,11 @@ HPP_FILES := $(wildcard $(INC_DIR)/*.hpp)
 CPP_FILES := $(wildcard $(SRC_DIR)/*.cpp)
 OBJ_FILES := $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(CPP_FILES))
 
-.phony: all
+.phony: all clean
 all: $(BUILD_PATH)
+
+clean:
+	rm -rf build
 
 $(BUILD_PATH): $(BUILD_DIR) $(OBJ_FILES) $(HPP_FILES)
 	g++ $(OBJ_FILES) -o $@
