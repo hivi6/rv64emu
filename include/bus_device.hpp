@@ -6,6 +6,8 @@ namespace rv64emu {
 
 class BusDevice {
 public:
+	virtual ~BusDevice() = default;
+
 	/**
 	 * Get the base pointer where the device attaches to the bus
 	 *
