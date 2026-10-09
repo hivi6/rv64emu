@@ -1,6 +1,6 @@
 #pragma once
 
-#include <array>
+#include "common.hpp"
 
 namespace rv64emu {
 
