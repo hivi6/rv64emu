@@ -211,6 +211,43 @@ std::expected<Cpu::Inst, Cpu::Exception> Cpu::decode(std::uint32_t raw) {
 	};
 }
 
+std::optional<Cpu::Exception> Cpu::execute(Inst inst, Bus &bus) {
+	auto nextPc = readPc() + 4;
+
+	switch (inst.op) {
+	case Op::LUI: 
+		writeX(inst.rd, inst.imm);
+		break;
+
+	case Op::AUIPC:
+		writeX(inst.rd, inst.imm + readPc());
+		break;
+
+	case Op::JAL:
+		nextPc = readPc() + inst.imm;
+		if (nextPc % 4 != 0) 
+			return Exception::INSTRUCTION_ADDRESS_MISALIGNED;
+
+		writeX(inst.rd, readPc() + 4);
+		break;
+
+	case Op::JALR:
+		nextPc = (readX(inst.rs1) + inst.imm) & ~std::uint64_t{1};
+		if (nextPc % 4 != 0) 
+			return Exception::INSTRUCTION_ADDRESS_MISALIGNED;
+
+		writeX(inst.rd, readPc() + 4);
+		break;
+
+	default:
+		return Exception::ILLEGAL_INSTRUCTION;
+	}
+
+	writePc(nextPc);
+	return std::nullopt;
+}
+
+
 // ========================================
 // Helper functions definition
 // ========================================

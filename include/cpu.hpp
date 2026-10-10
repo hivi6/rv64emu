@@ -11,6 +11,7 @@ class Cpu {
 
 public:
 	enum class Exception {
+		INSTRUCTION_ADDRESS_MISALIGNED,
 		INSTRUCTION_ACCESS_FAULT,
 		ILLEGAL_INSTRUCTION,
 	};
@@ -118,6 +119,19 @@ public:
 	 * 	Exception = Any cpu exception
 	 */
 	static std::expected<Inst, Exception> decode(std::uint32_t raw);
+
+	/**
+	 * execute the decoded instruction
+	 * If some exception occurs then return Cpu::Exception
+	 *
+	 * Parameter:
+	 * 	inst = decoded instruction
+	 * 	bus  = bus for memory access
+	 *
+	 * Returns:
+	 * 	Exception = if any cpu exception
+	 */
+	std::optional<Exception> execute(Inst inst, Bus &bus);
 };
 
 };
