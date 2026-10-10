@@ -146,6 +146,10 @@ std::expected<Cpu::Inst, Cpu::Exception> Cpu::decode(std::uint32_t raw) {
 		else if (funct3 == 0b001 && funct7 == 0b0000001) op = Op::MULH;
 		else if (funct3 == 0b010 && funct7 == 0b0000001) op = Op::MULHSU;
 		else if (funct3 == 0b011 && funct7 == 0b0000001) op = Op::MULHU;
+		else if (funct3 == 0b100 && funct7 == 0b0000001) op = Op::DIV;
+		else if (funct3 == 0b101 && funct7 == 0b0000001) op = Op::DIVU;
+		else if (funct3 == 0b110 && funct7 == 0b0000001) op = Op::REM;
+		else if (funct3 == 0b111 && funct7 == 0b0000001) op = Op::REMU;
 	}
 	else if (opcode == 0b0001111) {
 		if (funct3 == 0b000) {

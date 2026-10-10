@@ -35,6 +35,7 @@ public:
 		ADDW, SUBW, SLLW, SRLW, SRAW,
 
 		MUL, MULH, MULHSU, MULHU,
+		DIV, DIVU, REM, REMU,
 	};
 
 	struct Inst {
