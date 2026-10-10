@@ -143,6 +143,23 @@ std::expected<Cpu::Inst, Cpu::Exception> Cpu::decode(std::uint32_t raw) {
 		else if (funct3 == 0b110 && funct7 == 0b0000000) op = Op::OR;
 		else if (funct3 == 0b111 && funct7 == 0b0000000) op = Op::AND;
 	}
+	else if (opcode == 0b0001111) {
+		if (funct3 == 0b000) {
+			const auto fm = (raw >> 28);
+			const auto pred = (raw >> 24) & 0b1111;
+			const auto succ = (raw >> 20) & 0b1111;
+
+			op = Op::FENCE;
+
+			if (fm == 0b1000 && pred == 0b0011 
+				&& succ == 0b0011 && rs1 == 0b00000)
+				op = Op::FENCE_TSO;
+			else if (fm == 0b0000 && pred == 0b0001
+				&& succ == 0b0000 && rs1 == 0b00000
+				&& rd == 0b0000)
+				op = Op::PAUSE;
+		}
+	}
 
 
 	if (op == Op::INVALID) {
