@@ -239,6 +239,56 @@ std::optional<Cpu::Exception> Cpu::execute(Inst inst, Bus &bus) {
 		writeX(inst.rd, readPc() + 4);
 		break;
 
+	case Op::BEQ:
+		nextPc = (readX(inst.rs1) == readX(inst.rs2) 
+			? readPc() + inst.imm : readPc() + 4);
+		if (nextPc % 4 != 0) 
+			return Exception::INSTRUCTION_ADDRESS_MISALIGNED;
+		break;
+
+	case Op::BNE:
+		nextPc = (readX(inst.rs1) != readX(inst.rs2) 
+			? readPc() + inst.imm : readPc() + 4);
+		if (nextPc % 4 != 0) 
+			return Exception::INSTRUCTION_ADDRESS_MISALIGNED;
+		break;
+
+	case Op::BLT: {
+		const auto lhs = static_cast<int64_t>(readX(inst.rs1));
+		const auto rhs = static_cast<int64_t>(readX(inst.rs2));
+		nextPc = (lhs < rhs ? readPc() + inst.imm : readPc() + 4);
+		if (nextPc % 4 != 0) 
+			return Exception::INSTRUCTION_ADDRESS_MISALIGNED;
+		break;
+	}
+
+	case Op::BGE: {
+		const auto lhs = static_cast<int64_t>(readX(inst.rs1));
+		const auto rhs = static_cast<int64_t>(readX(inst.rs2));
+		nextPc = (lhs >= rhs ? readPc() + inst.imm : readPc() + 4);
+		if (nextPc % 4 != 0) 
+			return Exception::INSTRUCTION_ADDRESS_MISALIGNED;
+		break;
+	}
+
+	case Op::BLTU: {
+		const auto lhs = (readX(inst.rs1));
+		const auto rhs = (readX(inst.rs2));
+		nextPc = (lhs < rhs ? readPc() + inst.imm : readPc() + 4);
+		if (nextPc % 4 != 0) 
+			return Exception::INSTRUCTION_ADDRESS_MISALIGNED;
+		break;
+	}
+
+	case Op::BGEU: {
+		const auto lhs = (readX(inst.rs1));
+		const auto rhs = (readX(inst.rs2));
+		nextPc = (lhs >= rhs ? readPc() + inst.imm : readPc() + 4);
+		if (nextPc % 4 != 0) 
+			return Exception::INSTRUCTION_ADDRESS_MISALIGNED;
+		break;
+	}
+
 	default:
 		return Exception::ILLEGAL_INSTRUCTION;
 	}
