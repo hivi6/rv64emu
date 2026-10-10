@@ -443,6 +443,62 @@ std::optional<Cpu::Exception> Cpu::execute(Inst inst, Bus &bus) {
 		break;
 	}
 
+	case Op::ADD: {
+		writeX(inst.rd, readX(inst.rs1) + readX(inst.rs2));
+		break;
+	}
+
+	case Op::SUB: {
+		writeX(inst.rd, readX(inst.rs1) - readX(inst.rs2));
+		break;
+	}
+
+	case Op::SLL: {
+		const auto shiftAmt = readX(inst.rs2) & 0b111111;
+		writeX(inst.rd, readX(inst.rs1) << shiftAmt);
+		break;
+	}
+
+	case Op::SLT: {
+		auto const lhs = static_cast<std::int64_t>(readX(inst.rs1));
+		auto const rhs = static_cast<std::int64_t>(readX(inst.rs2));
+		writeX(inst.rd, lhs < rhs);
+		break;
+	}
+
+	case Op::SLTU: {
+		writeX(inst.rd, readX(inst.rs1) < readX(inst.rs2));
+		break;
+	}
+
+	case Op::XOR: {
+		writeX(inst.rd, readX(inst.rs1) ^ readX(inst.rs2));
+		break;
+	}
+
+	case Op::SRL: {
+		const auto shiftAmt = readX(inst.rs2) & 0b111111;
+		writeX(inst.rd, readX(inst.rs1) >> shiftAmt);
+		break;
+	}
+
+	case Op::SRA: {
+		const auto shiftAmt = readX(inst.rs2) & 0b111111;
+		writeX(inst.rd, signExtend(readX(inst.rs1) >> shiftAmt, 
+			64 - shiftAmt));
+		break;
+	}
+
+	case Op::OR: {
+		writeX(inst.rd, readX(inst.rs1) | readX(inst.rs2));
+		break;
+	}
+
+	case Op::AND: {
+		writeX(inst.rd, readX(inst.rs1) & readX(inst.rs2));
+		break;
+	}
+
 	default:
 		return Exception::ILLEGAL_INSTRUCTION;
 	}
