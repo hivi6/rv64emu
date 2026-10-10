@@ -36,6 +36,7 @@ public:
 
 		MUL, MULH, MULHSU, MULHU,
 		DIV, DIVU, REM, REMU,
+		MULW, DIVW, DIVUW, REMW, REMUW,
 	};
 
 	struct Inst {
