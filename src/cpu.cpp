@@ -363,6 +363,38 @@ std::optional<Cpu::Exception> Cpu::execute(Inst inst, Bus &bus) {
 		break;
 	}
 
+	case Op::SB: {
+		const auto addr = readX(inst.rs1) + inst.imm;
+		const auto busLoad = bus.write(addr, 1, readX(inst.rs2));
+		if (!busLoad)
+			return Exception::STORE_ACCESS_FAULT;
+		break;
+	}
+
+	case Op::SH: {
+		const auto addr = readX(inst.rs1) + inst.imm;
+		const auto busLoad = bus.write(addr, 2, readX(inst.rs2));
+		if (!busLoad)
+			return Exception::STORE_ACCESS_FAULT;
+		break;
+	}
+
+	case Op::SW: {
+		const auto addr = readX(inst.rs1) + inst.imm;
+		const auto busLoad = bus.write(addr, 4, readX(inst.rs2));
+		if (!busLoad)
+			return Exception::STORE_ACCESS_FAULT;
+		break;
+	}
+
+	case Op::SD: {
+		const auto addr = readX(inst.rs1) + inst.imm;
+		const auto busLoad = bus.write(addr, 8, readX(inst.rs2));
+		if (!busLoad)
+			return Exception::STORE_ACCESS_FAULT;
+		break;
+	}
+
 	default:
 		return Exception::ILLEGAL_INSTRUCTION;
 	}
