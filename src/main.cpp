@@ -1,4 +1,7 @@
 #include <iostream>
+#include <fstream>
+#include <sstream>
+#include <cstdio>
 
 #include "cpu.hpp"
 #include "ram.hpp"
@@ -7,10 +10,35 @@
 using namespace std;
 using namespace rv64emu;
 
-int main() {
-	Ram ram(0x1000, 1024);
+vector<uint8_t> loadBin(string filepath) {
+	ifstream file(filepath, ios::binary | ios::ate);
+	if (!file.is_open()) {
+		cerr << "Error opening binary file!" << endl;
+		exit(1);
+	}
 
-	Uart displayUart(0x0, 1, 
+	streamsize size = file.tellg();
+	file.seekg(0, ios::beg);
+
+	vector<uint8_t> buffer(size);
+	if (!file.read((char*)buffer.data(), size)) {
+		cerr << "Error reading file" << endl;
+		exit(1);
+	}
+
+	return buffer;
+}
+
+int main(int argc, char **argv) {
+	if (argc <= 1) {
+		cerr << "Expected filepath to binary" << endl;
+		return 1;
+	}
+
+	string filepath(argv[1]);
+	Ram ram(0x1000, loadBin(filepath));
+
+	Uart uart(0x0, 1, 
 	[]() -> std::uint8_t {
 		return static_cast<char>(getchar());
 	}, 
@@ -20,22 +48,7 @@ int main() {
 
 	Bus bus;
 	bus.attach(ram);
-	bus.attach(displayUart);
-
-	// load a hello world program
-	auto addr = ram.base();
-	for (auto ch: string("Hello, World!\n")) {
-		// addi x1, x0, char
-		auto addi = (static_cast<std::uint32_t>(ch) << 20) | 0x00000093;
-		bus.write(addr, 4, addi);
-		addr += 4;
-		
-		// sb x1, 0(0x0); write character to UART address 0
-		bus.write(addr, 4, 0x00100023);
-		addr += 4;
-	}
-	// ebreak
-	bus.write(addr, 4, 0x00100073);
+	bus.attach(uart);
 
 	Cpu cpu;
 	cpu.writePc(ram.base());

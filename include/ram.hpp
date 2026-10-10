@@ -19,6 +19,15 @@ public:
 	Ram(std::uint64_t base, std::size_t bytes);
 
 	/**
+	 * Another construction for ram device but uses the binary vector
+	 *
+	 * Parameters:
+	 * 	base  = base of the device where it will get attached to bus
+	 * 	bin   = binary vector
+	 */
+	Ram(std::uint64_t base, const std::vector<std::uint8_t>& bytes);
+
+	/**
 	 * Check if the address of the given width contains in the ram
 	 *
 	 * Parameters:

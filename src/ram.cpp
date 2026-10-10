@@ -12,6 +12,15 @@ Ram::Ram(std::uint64_t base, std::size_t bytes) {
 	vBytes.resize(bytes, 0);
 }
 
+Ram::Ram(std::uint64_t base, const std::vector<std::uint8_t>& bytes) {
+	if (!validMemoryRegion(base, bytes.size())) {
+		throw std::invalid_argument(
+			"RAM should be nonempty and fit in physical memory");
+	}
+	vBase = base;
+	vBytes = bytes;
+}
+
 bool Ram::contains(std::uint64_t addr, std::size_t width) {
 	return containsRange(base(), size(), addr, width);
 }
