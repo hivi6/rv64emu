@@ -14,32 +14,46 @@ MAIN_CPP := $(SRC_DIR)/main.cpp
 MAIN_OBJ := $(OBJ_DIR)/main.o
 MAIN_BIN := $(BUILD_DIR)/rv64emu
 
-TEST_CPP := $(TEST_DIR)/rv64i/rv64i-test.cpp
-TEST_OBJ := $(OBJ_DIR)/rv64i-test.o
-TEST_BIN := $(BUILD_DIR)/rv64i-test
-TEST_SH  := $(TEST_DIR)/rv64i-test.sh
+RV64I_TEST_CPP := $(TEST_DIR)/rv64i/rv64i-test.cpp
+RV64I_TEST_OBJ := $(OBJ_DIR)/rv64i-test.o
+RV64I_TEST_BIN := $(BUILD_DIR)/rv64i-test
+RV64I_TEST_SH  := $(TEST_DIR)/rv64i-test.sh
+
+UART_TEST_CPP := $(TEST_DIR)/uart/uart-test.cpp
+UART_TEST_OBJ := $(OBJ_DIR)/uart-test.o
+UART_TEST_BIN := $(BUILD_DIR)/uart-test
+UART_TEST_SH  := $(TEST_DIR)/uart-test.sh
 
 CORE_CPP := $(filter-out $(MAIN_CPP),$(CPP_FILES))
 CORE_OBJ := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(CORE_CPP))
 
-OBJ_FILES := $(CORE_OBJ) $(MAIN_OBJ) $(TEST_OBJ)
+OBJ_FILES := $(CORE_OBJ) $(MAIN_OBJ) $(RV64I_TEST_OBJ)
 
-.PHONY: all clean
+.PHONY: all clean test test-uart
 all: $(MAIN_BIN)
 
 clean:
 	rm -rf $(BUILD_DIR)
 
-test: $(TEST_BIN)
-	bash $(TEST_SH)
+test: $(RV64I_TEST_BIN)
+	bash $(RV64I_TEST_SH)
+
+test-uart: $(UART_TEST_BIN)
+	bash $(UART_TEST_SH)
 
 $(MAIN_BIN): $(CORE_OBJ) $(MAIN_OBJ) $(HPP_FILES) | $(BUILD_DIR)
 	g++ $(CORE_OBJ) $(MAIN_OBJ) -o $@
 
-$(TEST_BIN): $(CORE_OBJ) $(TEST_OBJ) $(HPP_FILES) | $(BUILD_DIR)
-	g++ $(CORE_OBJ) $(TEST_OBJ) -o $@
+$(RV64I_TEST_BIN): $(CORE_OBJ) $(RV64I_TEST_OBJ) $(HPP_FILES) | $(BUILD_DIR)
+	g++ $(CORE_OBJ) $(RV64I_TEST_OBJ) -o $@
 
-$(TEST_OBJ): $(TEST_CPP) | $(OBJ_DIR)
+$(RV64I_TEST_OBJ): $(RV64I_TEST_CPP) | $(OBJ_DIR)
+	g++ -I$(INC_DIR) $(CPP_FLAGS) -MMD -MP -c $< -o $@
+
+$(UART_TEST_BIN): $(CORE_OBJ) $(UART_TEST_OBJ) $(HPP_FILES) | $(BUILD_DIR)
+	g++ $(CORE_OBJ) $(UART_TEST_OBJ) -o $@
+
+$(UART_TEST_OBJ): $(UART_TEST_CPP) | $(OBJ_DIR)
 	g++ -I$(INC_DIR) $(CPP_FLAGS) -MMD -MP -c $< -o $@
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR)

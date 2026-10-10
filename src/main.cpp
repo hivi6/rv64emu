@@ -10,7 +10,11 @@ using namespace rv64emu;
 int main() {
 	Ram ram(0x1000, 1024);
 
-	Uart displayUart(0x0, 1, {}, [](std::uint8_t byte) {
+	Uart displayUart(0x0, 1, 
+	[]() -> std::uint8_t {
+		return static_cast<char>(getchar());
+	}, 
+	[](std::uint8_t byte) {
 		cout << static_cast<char>(byte) << flush;
 	});
 
