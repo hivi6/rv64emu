@@ -72,7 +72,7 @@ int main(int argc, char **argv) {
 
 	Cpu cpu;
 
-	for (int step = 1; ; step++) {
+	for (int step = 1; step < 100000; step++) {
 		auto rawInst = cpu.fetch(bus);
 		if (!rawInst) break;
 
