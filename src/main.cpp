@@ -25,6 +25,13 @@ int main() {
 	assert(cpu.fetch(bus).error() 
 		== Cpu::Exception::INSTRUCTION_ACCESS_FAULT);
 
+	auto inst = cpu.decode(0x00500093);
+	assert(inst);
+	assert(inst->op == Cpu::Op::ADDI);
+	assert(inst->rd == 1);
+	assert(inst->rs1 == 0);
+	assert(inst->imm == 5);
+
 	return 0;
 }
 
