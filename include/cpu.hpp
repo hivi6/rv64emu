@@ -22,6 +22,7 @@ public:
 		LB, LH, LW, LD, LBU, LHU, LWU,
 		SB, SH, SW, SD,
 		ADDI, XORI, ORI, ANDI, SLTIU, SLTI, SLLI, SRLI, SRAI,
+		ADD, SUB, SLL, SLT, SLTU, XOR, SRL, SRA, OR, AND,
 	};
 
 	struct Inst {

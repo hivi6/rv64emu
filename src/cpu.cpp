@@ -131,7 +131,18 @@ std::expected<Cpu::Inst, Cpu::Exception> Cpu::decode(std::uint32_t raw) {
 		else if (funct3 == 0b101 && shiftType == 0)       op = Op::SRLI;
 		else if (funct3 == 0b101 && shiftType == 0b10000) op = Op::SRAI;
 	}
-
+	else if (opcode == 0b0110011) {
+		if (funct3 == 0b000 && funct7 == 0b0000000)      op = Op::ADD;
+		else if (funct3 == 0b000 && funct7 == 0b0100000) op = Op::SUB;
+		else if (funct3 == 0b001 && funct7 == 0b0000000) op = Op::SLL;
+		else if (funct3 == 0b010 && funct7 == 0b0000000) op = Op::SLT;
+		else if (funct3 == 0b011 && funct7 == 0b0000000) op = Op::SLTU;
+		else if (funct3 == 0b100 && funct7 == 0b0000000) op = Op::XOR;
+		else if (funct3 == 0b101 && funct7 == 0b0000000) op = Op::SRL;
+		else if (funct3 == 0b101 && funct7 == 0b0100000) op = Op::SRA;
+		else if (funct3 == 0b110 && funct7 == 0b0000000) op = Op::OR;
+		else if (funct3 == 0b111 && funct7 == 0b0000000) op = Op::AND;
+	}
 
 
 	if (op == Op::INVALID) {
