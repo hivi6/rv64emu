@@ -12,6 +12,26 @@ class Cpu {
 public:
 	enum class Exception {
 		INSTRUCTION_ACCESS_FAULT,
+		ILLEGAL_INSTRUCTION,
+	};
+
+	enum class Op {
+		INVALID,
+		LUI, AUIPC, JAL, JALR,
+	};
+
+	struct Inst {
+		Op op;
+	
+		std::uint32_t raw;
+
+		std::uint32_t opcode;
+		std::uint32_t rd;
+		std::uint32_t rs1;
+		std::uint32_t rs2;
+
+		std::uint64_t imm;
+		std::uint32_t funct3;
 	};
 	
 	/**
@@ -71,6 +91,19 @@ public:
 	 *	Exception = if some exception occurs
 	 */
 	std::expected<std::uint32_t, Exception> fetch(Bus &bus);
+
+	/**
+	 * decode the instruction from raw bytes
+	 * If some exception occurs then return Cpu::Exception
+	 *
+	 * Parameter:
+	 * 	raw = raw instruction
+	 *
+	 * Returns:
+	 * 	Inst      = Decoded instruction
+	 * 	Exception = Any cpu exception
+	 */
+	static std::expected<Inst, Exception> decode(std::uint32_t raw);
 };
 
 };
