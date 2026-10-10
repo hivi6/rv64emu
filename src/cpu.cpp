@@ -522,6 +522,34 @@ std::optional<Cpu::Exception> Cpu::execute(Inst inst, Bus &bus) {
 		return Exception::BREAKPOINT;
 	}
 
+	case Op::ADDIW: {
+		const auto res = static_cast<std::uint32_t>(readX(inst.rs1) 
+			+ inst.imm);
+		writeX(inst.rd, signExtend(res, 32));
+		break;
+	}
+
+	case Op::SLLIW: {
+		const auto res = static_cast<std::uint32_t>(readX(inst.rs1) 
+			<< inst.shiftAmt);
+		writeX(inst.rd, signExtend(res, 32));
+		break;
+	}
+
+	case Op::SRLIW: {
+		const auto word = static_cast<std::uint32_t>(readX(inst.rs1));
+		const auto res = word >> inst.shiftAmt;
+		writeX(inst.rd, signExtend(res, 32));
+		break;
+	}
+
+	case Op::SRAIW: {
+		const auto word = static_cast<std::uint32_t>(readX(inst.rs1));
+		const auto res = word >> inst.shiftAmt;
+		writeX(inst.rd, signExtend(res, 32 - inst.shiftAmt));
+		break;
+	}
+
 	default:
 		return Exception::ILLEGAL_INSTRUCTION;
 	}
