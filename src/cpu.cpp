@@ -160,6 +160,17 @@ std::expected<Cpu::Inst, Cpu::Exception> Cpu::decode(std::uint32_t raw) {
 				op = Op::PAUSE;
 		}
 	}
+	else if (opcode == 0b1110011) {
+		imm = decodeIFormatImm(raw);
+
+		if (imm == 0b000000000000 && rs1 == 0b00000 &&
+			funct3 == 0b000 && rd == 0b00000)
+			op = Op::ECALL;
+		if (imm == 0b000000000001 && rs1 == 0b00000 &&
+			funct3 == 0b000 && rd == 0b00000)
+			op = Op::EBREAK;
+	}
+
 
 
 	if (op == Op::INVALID) {

@@ -24,6 +24,7 @@ public:
 		ADDI, XORI, ORI, ANDI, SLTIU, SLTI, SLLI, SRLI, SRAI,
 		ADD, SUB, SLL, SLT, SLTU, XOR, SRL, SRA, OR, AND,
 		FENCE, FENCE_TSO, PAUSE,
+		ECALL, EBREAK,
 	};
 
 	struct Inst {
