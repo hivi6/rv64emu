@@ -19,6 +19,7 @@ public:
 		INVALID,
 		LUI, AUIPC, JAL, JALR,
 		BEQ, BNE, BLT, BGE, BLTU, BGEU,
+		LB, LH, LW, LD, LBU, LHU, LWU,
 	};
 
 	struct Inst {

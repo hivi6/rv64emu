@@ -63,7 +63,7 @@ std::expected<Cpu::Inst, Cpu::Exception> Cpu::decode(std::uint32_t raw) {
 	const auto rs2    = decodeRs2(raw);
 
 	std::uint64_t imm    = 0;
-	std::uint32_t funct3 = 0;
+	std::uint32_t funct3 = decodeFunct3(raw);
 
 	if (opcode == 0b0110111) {
 		imm = decodeUFormatImm(raw);
@@ -79,13 +79,11 @@ std::expected<Cpu::Inst, Cpu::Exception> Cpu::decode(std::uint32_t raw) {
 	}
 	else if (opcode == 0b1100111) {
 		imm = decodeIFormatImm(raw);
-		funct3 = decodeFunct3(raw);
 
 		if (funct3 == 0b000) op = Op::JALR;
 	}
 	else if (opcode == 0b1100011) {
 		imm = decodeBFormatImm(raw);
-		funct3 = decodeFunct3(raw);
 
 		if (funct3 == 0b000)      op = Op::BEQ;
 		else if (funct3 == 0b001) op = Op::BNE;
@@ -93,6 +91,17 @@ std::expected<Cpu::Inst, Cpu::Exception> Cpu::decode(std::uint32_t raw) {
 		else if (funct3 == 0b101) op = Op::BGE;
 		else if (funct3 == 0b110) op = Op::BLTU;
 		else if (funct3 == 0b111) op = Op::BGEU;
+	}
+	else if (opcode == 0b0000011) {
+		imm = decodeIFormatImm(raw);
+
+		if (funct3 == 0b000)      op = Op::LB;
+		else if (funct3 == 0b001) op = Op::LH;
+		else if (funct3 == 0b010) op = Op::LW;
+		else if (funct3 == 0b011) op = Op::LD;
+		else if (funct3 == 0b100) op = Op::LBU;
+		else if (funct3 == 0b101) op = Op::LHU;
+		else if (funct3 == 0b110) op = Op::LWU;
 	}
 
 
