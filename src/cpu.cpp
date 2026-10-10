@@ -499,6 +499,21 @@ std::optional<Cpu::Exception> Cpu::execute(Inst inst, Bus &bus) {
 		break;
 	}
 
+	case Op::FENCE: {
+		// WORKAROUND: As the Cpu is syncronised so not required
+		break;
+	}
+
+	case Op::FENCE_TSO: {
+		// WORKAROUND: As the Cpu is syncronised so not required
+		break;
+	}
+
+	case Op::PAUSE: {
+		// WORKAROUND: As the Cpu is syncronised so not required
+		break;
+	}
+
 	default:
 		return Exception::ILLEGAL_INSTRUCTION;
 	}
