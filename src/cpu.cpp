@@ -24,6 +24,8 @@ constexpr std::uint64_t decodeJFormatImm(std::uint32_t raw);
 constexpr std::uint32_t decodeShiftAmt(std::uint32_t raw);
 constexpr std::uint32_t decodeShiftType(std::uint32_t raw);
 
+constexpr std::uint64_t multHighUnsigned(std::uint64_t a, std::uint64_t b);
+
 // ========================================
 // Definition of Cpu class
 // ========================================
@@ -596,6 +598,98 @@ std::optional<Cpu::Exception> Cpu::execute(Inst inst, Bus &bus) {
 		break;
 	}
 
+	case Op::MUL: {
+		writeX(inst.rd, readX(inst.rs1) * readX(inst.rs2));
+		break;
+	}
+
+	case Op::MULH: {
+		auto lhs = readX(inst.rs1);
+		auto rhs = readX(inst.rs2);
+
+		auto res = multHighUnsigned(lhs, rhs);
+		if (lhs >> 63) res -= rhs;
+		if (rhs >> 63) res -= lhs;
+
+		writeX(inst.rd, res);
+		break;
+	}
+
+	case Op::MULHSU: {
+		const auto lhs = readX(inst.rs1);
+		const auto rhs = readX(inst.rs2);
+
+		auto res = multHighUnsigned(lhs, rhs);
+		if (lhs >> 63) res -= rhs;
+
+		writeX(inst.rd, res);
+		break;
+	}
+
+	case Op::MULHU: {
+		const auto lhs = readX(inst.rs1);
+		const auto rhs = readX(inst.rs2);
+
+		const auto res = multHighUnsigned(lhs, rhs);
+
+		writeX(inst.rd, res);
+		break;
+	}
+
+	case Op::DIV: {
+		const auto lhs = static_cast<std::int64_t>(readX(inst.rs1));
+		const auto rhs = static_cast<std::int64_t>(readX(inst.rs2));
+
+		const auto min = std::numeric_limits<std::int64_t>::min();
+
+		std::uint64_t res = 0;
+		if (rhs == 0) res = -1;
+		else if (lhs == min && rhs == -1) res = min;
+		else res = lhs / rhs;
+
+		writeX(inst.rd, res);
+		break;
+	}
+
+	case Op::DIVU: {
+		const auto lhs = readX(inst.rs1);
+		const auto rhs = readX(inst.rs2);
+
+		std::uint64_t res = 0;
+		if (rhs == 0) res = std::numeric_limits<std::uint64_t>::max();
+		else res = lhs / rhs;
+
+		writeX(inst.rd, res);
+		break;
+	}
+
+	case Op::REM: {
+		const auto lhs = static_cast<std::int64_t>(readX(inst.rs1));
+		const auto rhs = static_cast<std::int64_t>(readX(inst.rs2));
+
+		const auto min = std::numeric_limits<std::int64_t>::min();
+
+		std::int64_t res = 0;
+		if (rhs == 0) res = lhs;
+		else if (lhs == min && rhs == -1) res = 0;
+		else res = lhs % rhs;
+
+		writeX(inst.rd, res);
+		break;
+	}
+
+	case Op::REMU: {
+		const auto lhs = readX(inst.rs1);
+		const auto rhs = readX(inst.rs2);
+
+		std::uint64_t res = 0;
+		if (rhs == 0) res = lhs;
+		else res = lhs % rhs;
+
+		writeX(inst.rd, res);
+		break;
+	}
+
 	default:
 		return Exception::ILLEGAL_INSTRUCTION;
 	}
@@ -681,6 +775,23 @@ constexpr std::uint32_t decodeShiftAmt(std::uint32_t raw) {
 
 constexpr std::uint32_t decodeShiftType(std::uint32_t raw) {
 	return raw >> 26;
+}
+
+constexpr std::uint64_t multHighUnsigned(std::uint64_t a, std::uint64_t b) {
+	const auto a0 = a & 0xffffffff;
+	const auto a1 = a >> 32;
+	const auto b0 = b & 0xffffffff;
+	const auto b1 = b >> 32;
+
+	const auto p00 = a0 * b0;
+	const auto p10 = a1 * b0;
+	const auto p01 = a0 * b1;
+	const auto p11 = a1 * b1;
+
+	const auto carry = (p00 >> 32) + (p01 & 0xffffffff) 
+		+ (p10 & 0xffffffff);
+	
+	return p11 + (p01 >> 32) + (p10 >> 32) + (carry >> 32);
 }
 
 }
