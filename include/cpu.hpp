@@ -33,6 +33,8 @@ public:
 		ECALL, EBREAK,
 		ADDIW, SLLIW, SRLIW, SRAIW,
 		ADDW, SUBW, SLLW, SRLW, SRAW,
+
+		MUL, MULH, MULHSU, MULHU,
 	};
 
 	struct Inst {
