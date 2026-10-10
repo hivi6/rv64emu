@@ -514,6 +514,14 @@ std::optional<Cpu::Exception> Cpu::execute(Inst inst, Bus &bus) {
 		break;
 	}
 
+	case Op::ECALL: {
+		return Exception::ENVIRONMENT_CALL_FROM_UMODE;
+	}
+
+	case Op::EBREAK: {
+		return Exception::BREAKPOINT;
+	}
+
 	default:
 		return Exception::ILLEGAL_INSTRUCTION;
 	}
