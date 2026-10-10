@@ -20,6 +20,8 @@ public:
 		LUI, AUIPC, JAL, JALR,
 		BEQ, BNE, BLT, BGE, BLTU, BGEU,
 		LB, LH, LW, LD, LBU, LHU, LWU,
+		SB, SH, SW, SD,
+		ADDI, XORI, ORI, ANDI, SLTIU, SLTI, SLLI, SRLI, SRAI,
 	};
 
 	struct Inst {
@@ -33,7 +35,11 @@ public:
 		std::uint32_t rs2;
 
 		std::uint64_t imm;
+
 		std::uint32_t funct3;
+		std::uint32_t funct7;
+		std::uint32_t shiftType;
+		std::uint32_t shiftAmt;
 	};
 	
 	/**

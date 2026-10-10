@@ -21,6 +21,9 @@ constexpr std::uint64_t decodeBFormatImm(std::uint32_t raw);
 constexpr std::uint64_t decodeUFormatImm(std::uint32_t raw);
 constexpr std::uint64_t decodeJFormatImm(std::uint32_t raw);
 
+constexpr std::uint32_t decodeShiftAmt(std::uint32_t raw);
+constexpr std::uint32_t decodeShiftType(std::uint32_t raw);
+
 // ========================================
 // Definition of Cpu class
 // ========================================
@@ -62,8 +65,12 @@ std::expected<Cpu::Inst, Cpu::Exception> Cpu::decode(std::uint32_t raw) {
 	const auto rs1    = decodeRs1(raw);
 	const auto rs2    = decodeRs2(raw);
 
-	std::uint64_t imm    = 0;
-	std::uint32_t funct3 = decodeFunct3(raw);
+	std::uint64_t imm = 0;
+
+	const auto funct3    = decodeFunct3(raw);
+	const auto funct7    = decodeFunct7(raw);
+	const auto shiftType = decodeShiftType(raw);
+	const auto shiftAmt  = decodeShiftAmt(raw);
 
 	if (opcode == 0b0110111) {
 		imm = decodeUFormatImm(raw);
@@ -103,6 +110,28 @@ std::expected<Cpu::Inst, Cpu::Exception> Cpu::decode(std::uint32_t raw) {
 		else if (funct3 == 0b101) op = Op::LHU;
 		else if (funct3 == 0b110) op = Op::LWU;
 	}
+	else if (opcode == 0b0100011) {
+		imm = decodeSFormatImm(raw);
+
+		if (funct3 == 0b000)      op = Op::SB;
+		else if (funct3 == 0b001) op = Op::SH;
+		else if (funct3 == 0b010) op = Op::SW;
+		else if (funct3 == 0b011) op = Op::SD;
+	}
+	else if (opcode == 0b0010011) {
+		imm = decodeIFormatImm(raw);
+	
+		if (funct3 == 0b000)                              op = Op::ADDI;
+		else if (funct3 == 0b100)                         op = Op::XORI;
+		else if (funct3 == 0b110)                         op = Op::ORI;
+		else if (funct3 == 0b111)                         op = Op::ANDI;
+		else if (funct3 == 0b011)                         op = Op::SLTIU;
+		else if (funct3 == 0b010)                         op = Op::SLTI;
+		else if (funct3 == 0b001 && shiftType == 0)       op = Op::SLLI;
+		else if (funct3 == 0b101 && shiftType == 0)       op = Op::SRLI;
+		else if (funct3 == 0b101 && shiftType == 0b10000) op = Op::SRAI;
+	}
+
 
 
 	if (op == Op::INVALID) {
@@ -120,7 +149,11 @@ std::expected<Cpu::Inst, Cpu::Exception> Cpu::decode(std::uint32_t raw) {
 		.rs2    = rs2,
 
 		.imm    = imm,
-		.funct3 = funct3,
+
+		.funct3    = funct3,
+		.funct7    = funct7,
+		.shiftType = shiftType,
+		.shiftAmt  = shiftAmt,
 	};
 }
 
@@ -192,6 +225,14 @@ constexpr std::uint64_t decodeJFormatImm(std::uint32_t raw) {
 		| (imm_11 << 11) | (imm_10_1 << 1);
 	return signExtend(res, 21);
 
+}
+
+constexpr std::uint32_t decodeShiftAmt(std::uint32_t raw) {
+	return (raw >> 20) & 0b111111;
+}
+
+constexpr std::uint32_t decodeShiftType(std::uint32_t raw) {
+	return raw >> 26;
 }
 
 }
