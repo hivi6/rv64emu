@@ -550,6 +550,44 @@ std::optional<Cpu::Exception> Cpu::execute(Inst inst, Bus &bus) {
 		break;
 	}
 
+	case Op::ADDW: {
+		const auto word = readX(inst.rs1) + readX(inst.rs2);
+		const auto res = static_cast<std::uint32_t>(word);
+		writeX(inst.rd, signExtend(res, 32));
+		break;
+	}
+
+	case Op::SUBW: {
+		const auto word = readX(inst.rs1) - readX(inst.rs2);
+		const auto res = static_cast<std::uint32_t>(word);
+		writeX(inst.rd, signExtend(res, 32));
+		break;
+	}
+
+	case Op::SLLW: {
+		const auto shift = readX(inst.rs2) & 0b11111;
+		const auto word = readX(inst.rs1) << shift;
+		const auto res = static_cast<std::uint32_t>(word);
+		writeX(inst.rd, signExtend(res, 32));
+		break;
+	}
+
+	case Op::SRLW: {
+		const auto shift = readX(inst.rs2) & 0b11111;
+		const auto word = static_cast<std::uint32_t>(readX(inst.rs1));
+		const auto res = word >> shift;
+		writeX(inst.rd, signExtend(res, 32));
+		break;
+	}
+
+	case Op::SRAW: {
+		const auto shift = readX(inst.rs2) & 0b11111;
+		const auto word = static_cast<std::uint32_t>(readX(inst.rs1));
+		const auto res = word >> shift;
+		writeX(inst.rd, signExtend(res, 32 - shift));
+		break;
+	}
+
 	default:
 		return Exception::ILLEGAL_INSTRUCTION;
 	}
