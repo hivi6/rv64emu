@@ -2,7 +2,7 @@
 
 #include "cpu.hpp"
 #include "ram.hpp"
-#include "bus.hpp"
+#include "uart.hpp"
 
 using namespace std;
 using namespace rv64emu;
@@ -10,34 +10,42 @@ using namespace rv64emu;
 int main() {
 	Ram ram(0x1000, 1024);
 
+	Uart displayUart(0x0, 1, {}, [](std::uint8_t byte) {
+		cout << static_cast<char>(byte) << flush;
+	});
+
 	Bus bus;
 	bus.attach(ram);
-	
-	bus.write(0x1000, 4, 0x00500093);
-	assert(bus.read(0x1000, 4).value() == 0x00500093);
+	bus.attach(displayUart);
+
+	// load a hello world program
+	auto addr = ram.base();
+	for (auto ch: string("Hello, World!\n")) {
+		// addi x1, x0, char
+		auto addi = (static_cast<std::uint32_t>(ch) << 20) | 0x00000093;
+		bus.write(addr, 4, addi);
+		addr += 4;
+		
+		// sb x1, 0(0x0); write character to UART address 0
+		bus.write(addr, 4, 0x00100023);
+		addr += 4;
+	}
+	// ebreak
+	bus.write(addr, 4, 0x00100073);
 
 	Cpu cpu;
+	cpu.writePc(ram.base());
 
-	cpu.writePc(0x99);
-	assert(cpu.fetch(bus).error() 
-		== Cpu::Exception::INSTRUCTION_ACCESS_FAULT);
+	for (size_t step = 1; step < 1000; step++) {
+		auto raw = cpu.fetch(bus);
+		if (!raw) break;
 
-	cpu.writePc(0x1000);
-	auto raw_inst = cpu.fetch(bus);
-	assert(raw_inst);
-	assert(*raw_inst == 0x00500093);
+		auto inst = cpu.decode(*raw);
+		if (!inst) break;
 
-	auto inst = cpu.decode(*raw_inst);
-	assert(inst);
-	assert(inst->op == Cpu::Op::ADDI);
-	assert(inst->rd == 1);
-	assert(inst->rs1 == 0);
-	assert(inst->imm == 5);
-
-	auto cpuException = cpu.execute(*inst, bus);
-	assert(cpuException == std::nullopt);
-	assert(cpu.readX(1) == 5);
-	assert(cpu.readPc() == 0x1004);
+		auto exception = cpu.execute(*inst, bus);
+		if (exception) break;
+	}
 
 	return 0;
 }

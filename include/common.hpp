@@ -4,6 +4,7 @@
 #include <cassert>
 #include <cstdint>
 #include <expected>
+#include <functional>
 #include <limits>
 #include <numeric>
 #include <optional>
