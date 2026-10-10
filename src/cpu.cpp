@@ -289,6 +289,80 @@ std::optional<Cpu::Exception> Cpu::execute(Inst inst, Bus &bus) {
 		break;
 	}
 
+	case Op::LB: {
+		const auto addr = readX(inst.rs1) + inst.imm;
+		const auto busLoad = bus.read(addr, 1);
+		if (!busLoad)
+			return Exception::LOAD_ACCESS_FAULT;
+		
+		auto res = signExtend(*busLoad, 8);
+		writeX(inst.rd, res);
+		break;
+	}
+
+	case Op::LH: {
+		const auto addr = readX(inst.rs1) + inst.imm;
+		const auto busLoad = bus.read(addr, 2);
+		if (!busLoad)
+			return Exception::LOAD_ACCESS_FAULT;
+		
+		auto res = signExtend(*busLoad, 16);
+		writeX(inst.rd, res);
+		break;
+	}
+
+	case Op::LW: {
+		const auto addr = readX(inst.rs1) + inst.imm;
+		const auto busLoad = bus.read(addr, 4);
+		if (!busLoad)
+			return Exception::LOAD_ACCESS_FAULT;
+		
+		auto res = signExtend(*busLoad, 32);
+		writeX(inst.rd, res);
+		break;
+	}
+
+	case Op::LD: {
+		const auto addr = readX(inst.rs1) + inst.imm;
+		const auto busLoad = bus.read(addr, 8);
+		if (!busLoad)
+			return Exception::LOAD_ACCESS_FAULT;
+		
+		auto res = signExtend(*busLoad, 64);
+		writeX(inst.rd, res);
+		break;
+	}
+
+	case Op::LBU: {
+		const auto addr = readX(inst.rs1) + inst.imm;
+		const auto busLoad = bus.read(addr, 1);
+		if (!busLoad)
+			return Exception::LOAD_ACCESS_FAULT;
+		
+		writeX(inst.rd, *busLoad);
+		break;
+	}
+
+	case Op::LHU: {
+		const auto addr = readX(inst.rs1) + inst.imm;
+		const auto busLoad = bus.read(addr, 2);
+		if (!busLoad)
+			return Exception::LOAD_ACCESS_FAULT;
+		
+		writeX(inst.rd, *busLoad);
+		break;
+	}
+
+	case Op::LWU: {
+		const auto addr = readX(inst.rs1) + inst.imm;
+		const auto busLoad = bus.read(addr, 4);
+		if (!busLoad)
+			return Exception::LOAD_ACCESS_FAULT;
+		
+		writeX(inst.rd, *busLoad);
+		break;
+	}
+
 	default:
 		return Exception::ILLEGAL_INSTRUCTION;
 	}
