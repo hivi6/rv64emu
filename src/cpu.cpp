@@ -81,9 +81,20 @@ std::expected<Cpu::Inst, Cpu::Exception> Cpu::decode(std::uint32_t raw) {
 		imm = decodeIFormatImm(raw);
 		funct3 = decodeFunct3(raw);
 
-		if (funct3 == 0b000)
-			op = Op::JALR;
+		if (funct3 == 0b000) op = Op::JALR;
 	}
+	else if (opcode == 0b1100011) {
+		imm = decodeBFormatImm(raw);
+		funct3 = decodeFunct3(raw);
+
+		if (funct3 == 0b000)      op = Op::BEQ;
+		else if (funct3 == 0b001) op = Op::BNE;
+		else if (funct3 == 0b100) op = Op::BLT;
+		else if (funct3 == 0b101) op = Op::BGE;
+		else if (funct3 == 0b110) op = Op::BLTU;
+		else if (funct3 == 0b111) op = Op::BGEU;
+	}
+
 
 	if (op == Op::INVALID) {
 		return std::unexpected(Exception::ILLEGAL_INSTRUCTION);

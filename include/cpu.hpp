@@ -18,6 +18,7 @@ public:
 	enum class Op {
 		INVALID,
 		LUI, AUIPC, JAL, JALR,
+		BEQ, BNE, BLT, BGE, BLTU, BGEU,
 	};
 
 	struct Inst {
