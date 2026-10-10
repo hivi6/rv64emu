@@ -17,6 +17,7 @@ public:
 
 	enum class Op {
 		INVALID,
+
 		LUI, AUIPC, JAL, JALR,
 		BEQ, BNE, BLT, BGE, BLTU, BGEU,
 		LB, LH, LW, LD, LBU, LHU, LWU,
@@ -26,6 +27,7 @@ public:
 		FENCE, FENCE_TSO, PAUSE,
 		ECALL, EBREAK,
 		ADDIW, SLLIW, SRLIW, SRAIW,
+		ADDW, SUBW, SLLW, SRLW, SRAW,
 	};
 
 	struct Inst {
