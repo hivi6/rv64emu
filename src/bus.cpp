@@ -6,7 +6,7 @@ namespace rv64emu {
 BusDevice *find(const std::vector<BusDevice*>& devices, 
 	std::uint64_t addr, std::size_t width) {
 	for (auto device: devices) {
-		if (contains_range(device->base(), device->size(), addr, width))
+		if (containsRange(device->base(), device->size(), addr, width))
 			return device;
 	}
 	return nullptr;
@@ -16,7 +16,7 @@ bool Bus::attach(BusDevice &device) {
 	const auto base = device.base();
 	const auto size = device.size();
 
-	if (!valid_memory_region(base, size)) {
+	if (!validMemoryRegion(base, size)) {
 		return false;
 	}
 
