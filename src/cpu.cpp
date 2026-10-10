@@ -695,6 +695,69 @@ std::optional<Cpu::Exception> Cpu::execute(Inst inst, Bus &bus) {
 		break;
 	}
 
+	case Op::MULW: {
+		const auto lhs = static_cast<std::int32_t>(readX(inst.rs1));
+		const auto rhs = static_cast<std::int32_t>(readX(inst.rs2));
+
+		const std::uint32_t res = lhs * std::int64_t{1} * rhs;
+		writeX(inst.rd, signExtend(res, 32));
+		break;
+	}
+
+	case Op::DIVW: {
+		const auto lhs = static_cast<std::int32_t>(readX(inst.rs1));
+		const auto rhs = static_cast<std::int32_t>(readX(inst.rs2));
+
+		const auto min = std::numeric_limits<std::int32_t>::min();
+
+		std::int64_t res = 0;
+		if (rhs == 0) res = -1;
+		else if (lhs == min && rhs == -1) res = min;
+		else res = lhs * std::int64_t{1} / rhs;
+
+		writeX(inst.rd, res);
+		break;
+	}
+
+	case Op::DIVUW: {
+		const auto lhs = static_cast<std::uint32_t>(readX(inst.rs1));
+		const auto rhs = static_cast<std::uint32_t>(readX(inst.rs2));
+
+		std::int64_t res = 0;
+		if (rhs == 0) res = std::numeric_limits<std::uint32_t>::max();
+		else res = lhs * std::int64_t{1} / rhs;
+
+		writeX(inst.rd, signExtend(res, 32));
+		break;
+	}
+
+	case Op::REMW: {
+		const auto lhs = static_cast<std::int32_t>(readX(inst.rs1));
+		const auto rhs = static_cast<std::int32_t>(readX(inst.rs2));
+
+		const auto min = std::numeric_limits<std::int32_t>::min();
+
+		std::int64_t res = 0;
+		if (rhs == 0) res = lhs;
+		else if (lhs == min && rhs == -1) res = 0;
+		else res = lhs % rhs;
+
+		writeX(inst.rd, res);
+		break;
+	}
+
+	case Op::REMUW: {
+		const auto lhs = static_cast<std::uint32_t>(readX(inst.rs1));
+		const auto rhs = static_cast<std::uint32_t>(readX(inst.rs2));
+
+		std::uint64_t res = 0;
+		if (rhs == 0) res = lhs;
+		else res = lhs % rhs;
+
+		writeX(inst.rd, signExtend(static_cast<std::uint32_t>(res), 32));
+		break;
+	}
+
 	default:
 		return Exception::ILLEGAL_INSTRUCTION;
 	}
