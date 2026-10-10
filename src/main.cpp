@@ -2,17 +2,19 @@
 
 #include "cpu.hpp"
 #include "ram.hpp"
+#include "bus.hpp"
 
 int main() {
+	rv64emu::Bus bus;
 	rv64emu::Ram ram(0x1000, 1024);
-	std::cout << "RAM base: " 
-		<< std::hex << "0x" << ram.base() << std::endl;
-	std::cout << "RAM size: " << std::dec << ram.size() << std::endl;
 
-	if (ram.write(0x1000, 1, 64)) std::cout << "Write success" << std::endl;
-	if (ram.write(0x9999, 1, 64)) std::cout << "Write success" << std::endl;
+	bus.attach(ram);
+	
+	bus.write(0x1000, 1, 42);
+	std::cout << bus.read(0x1000, 1).value() << std::endl;
 
 	std::cout << "Hello, World!" << std::endl;
+
 	return 0;
 }
 
