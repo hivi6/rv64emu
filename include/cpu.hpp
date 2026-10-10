@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common.hpp"
+#include "bus.hpp"
 
 namespace rv64emu {
 
@@ -9,6 +10,10 @@ class Cpu {
 	uint64_t                 vPc; // Program counter
 
 public:
+	enum class Exception {
+		INSTRUCTION_ACCESS_FAULT,
+	};
+	
 	/**
 	 * Default construction
 	 *
@@ -22,7 +27,7 @@ public:
 	 * Returns:
 	 *     uint64_t = current instruction pointer value
 	 */
-	uint64_t readPC() const;
+	uint64_t readPc() const;
 
 	/**
 	 * Read the register index value
@@ -42,7 +47,7 @@ public:
 	 * Parameters:
 	 * 	value = new value of the program counter
 	 */
-	void writePC(uint64_t value);
+	void writePc(uint64_t value);
 
 	/**
 	 * Change the register index value
@@ -53,6 +58,19 @@ public:
 	 * 	value = new value for the register
 	 */
 	void writeX(size_t index, uint64_t value);
+
+	/**
+	 * fetch the instruction from the bus
+	 * If some exception occurs then return CpuException
+	 *
+	 * Parameter:
+	 * 	bus = Bus from which instruction will be fetch
+	 *
+	 * Returns:
+	 *	uint32_t  = if cpu fetch was successful
+	 *	Exception = if some exception occurs
+	 */
+	std::expected<std::uint32_t, Exception> fetch(Bus &bus);
 };
 
 };
