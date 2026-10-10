@@ -170,7 +170,18 @@ std::expected<Cpu::Inst, Cpu::Exception> Cpu::decode(std::uint32_t raw) {
 			funct3 == 0b000 && rd == 0b00000)
 			op = Op::EBREAK;
 	}
+	else if (opcode == 0b0011011) {
+		imm = decodeIFormatImm(raw);
 
+		if (funct3 == 0b000)
+			op = Op::ADDIW;
+		else if (funct3 == 0b001 && funct7 == 0b0000000)
+			op = Op::SLLIW;
+		else if (funct3 == 0b101 && funct7 == 0b0000000)
+			op = Op::SRLIW;
+		else if (funct3 == 0b101 && funct7 == 0b0100000)
+			op = Op::SRAIW;
+	}
 
 
 	if (op == Op::INVALID) {

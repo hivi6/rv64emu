@@ -25,6 +25,7 @@ public:
 		ADD, SUB, SLL, SLT, SLTU, XOR, SRL, SRA, OR, AND,
 		FENCE, FENCE_TSO, PAUSE,
 		ECALL, EBREAK,
+		ADDIW, SLLIW, SRLIW, SRAIW,
 	};
 
 	struct Inst {
