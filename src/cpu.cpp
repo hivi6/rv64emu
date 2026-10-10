@@ -395,6 +395,54 @@ std::optional<Cpu::Exception> Cpu::execute(Inst inst, Bus &bus) {
 		break;
 	}
 
+	case Op::ADDI: {
+		writeX(inst.rd, readX(inst.rs1) + inst.imm);
+		break;
+	}
+
+	case Op::XORI: {
+		writeX(inst.rd, readX(inst.rs1) ^ inst.imm);
+		break;
+	}
+
+	case Op::ORI: {
+		writeX(inst.rd, readX(inst.rs1) | inst.imm);
+		break;
+	}
+
+	case Op::ANDI: {
+		writeX(inst.rd, readX(inst.rs1) & inst.imm);
+		break;
+	}
+
+	case Op::SLTIU: {
+		writeX(inst.rd, readX(inst.rs1) < inst.imm);
+		break;
+	}
+
+	case Op::SLTI: {
+		const auto lhs = static_cast<std::int64_t>(readX(inst.rs1));
+		const auto rhs = static_cast<std::int64_t>(inst.imm);
+		writeX(inst.rd, lhs < rhs);
+		break;
+	}
+
+	case Op::SLLI: {
+		writeX(inst.rd, readX(inst.rs1) << inst.shiftAmt);
+		break;
+	}
+
+	case Op::SRLI: {
+		writeX(inst.rd, readX(inst.rs1) >> inst.shiftAmt);
+		break;
+	}
+
+	case Op::SRAI: {
+		writeX(inst.rd, signExtend(readX(inst.rs1) >> inst.shiftAmt, 
+			64 - inst.shiftAmt));
+		break;
+	}
+
 	default:
 		return Exception::ILLEGAL_INSTRUCTION;
 	}
