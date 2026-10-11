@@ -31,11 +31,13 @@ CORE_OBJ := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(CORE_CPP))
 
 OBJ_FILES := $(CORE_OBJ) $(MAIN_OBJ) $(RV64I_TEST_OBJ)
 
-.PHONY: all clean test-i test-uart
+.PHONY: all clean test test-i test-uart
 all: $(MAIN_BIN)
 
 clean:
 	rm -rf $(BUILD_DIR)
+
+test: test-i test-uart
 
 test-i: $(RV64_TEST_BIN)
 	bash $(RV64I_TEST_SH)

@@ -13,4 +13,5 @@ if [ "$STR" != "$FINAL" ]; then
 else
 	echo "PASSED"
 fi
+echo
 
