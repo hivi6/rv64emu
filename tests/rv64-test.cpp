@@ -1,6 +1,5 @@
 #include "cpu.hpp"
 #include "ram.hpp"
-#include "uart.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -68,19 +67,8 @@ int main(int argc, char **argv) {
 		ram.write(i, 1, bin[i]);
 	}
 
-	Uart uart(0x1000, 1, 
-	[]() -> optional<uint8_t> {
-		const int ch = std::getchar();
-		if (ch == EOF) return std::nullopt;
-		return static_cast<uint8_t>(ch);
-	}, 
-	[](uint8_t byte) {
-		cout << static_cast<char>(byte) << flush;
-	});
-
 	Bus bus;
 	bus.attach(ram);
-	bus.attach(uart);
 
 	Cpu cpu;
 

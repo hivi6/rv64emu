@@ -15,8 +15,8 @@ MAIN_OBJ := $(OBJ_DIR)/main.o
 MAIN_BIN := $(BUILD_DIR)/rv64emu
 
 RV64_TEST_CPP := $(TEST_DIR)/rv64-test.cpp
-RV64_TEST_OBJ := $(OBJ_DIR)/rv64i-test.o
-RV64_TEST_BIN := $(BUILD_DIR)/rv64i-test
+RV64_TEST_OBJ := $(OBJ_DIR)/rv64-test.o
+RV64_TEST_BIN := $(BUILD_DIR)/rv64-test
 
 # Scripts for running the tests
 RV64I_TEST_SH  := $(TEST_DIR)/test-i.sh
