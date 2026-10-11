@@ -18,6 +18,18 @@ Now you can test using the following commands:
 make test
 ```
 
+## TODO
+
+- [ ] Unpriv instructions
+	- [x] I - Extension
+	- [x] M - Extension
+	- [x] Zicsr - Extension
+	- [ ] A - Extension
+	- [ ] C - Extension
+	- [ ] D - Extension
+- [ ] Priv instructions
+	- [ ] Csr permission
+
 ## Resources
 
 - https://book.rvemu.app/hardware-components/01-cpu.html
