@@ -14,16 +14,18 @@ public:
 		MACHINE    = 0b11,
 	};
 
-	enum class Exception {
-		INSTRUCTION_ADDRESS_MISALIGNED,
-		INSTRUCTION_ACCESS_FAULT,
-		ILLEGAL_INSTRUCTION,
-		BREAKPOINT,
-		LOAD_ACCESS_FAULT,
-		STORE_ACCESS_FAULT,
-		ENVIRONMENT_CALL_FROM_UMODE,
-		ENVIRONMENT_CALL_FROM_SMODE,
-		ENVIRONMENT_CALL_FROM_MMODE,
+	// https://docs.riscv.org/reference/isa/_attachments/riscv-privileged.pdf
+	// Table 50
+	enum class Exception : std::uint8_t {
+		INSTRUCTION_ADDRESS_MISALIGNED = 0,
+		INSTRUCTION_ACCESS_FAULT       = 1,
+		ILLEGAL_INSTRUCTION            = 2,
+		BREAKPOINT                     = 3,
+		LOAD_ACCESS_FAULT              = 5,
+		STORE_ACCESS_FAULT             = 7,
+		ENVIRONMENT_CALL_FROM_UMODE    = 8,
+		ENVIRONMENT_CALL_FROM_SMODE    = 9,
+		ENVIRONMENT_CALL_FROM_MMODE    = 11,
 	};
 
 	enum class Op {
