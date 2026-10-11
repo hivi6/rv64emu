@@ -14,8 +14,6 @@ public:
 		MACHINE    = 0b11,
 	};
 
-	// https://docs.riscv.org/reference/isa/_attachments/riscv-privileged.pdf
-	// Table 50
 	enum class Exception : std::uint8_t {
 		INSTRUCTION_ADDRESS_MISALIGNED = 0,
 		INSTRUCTION_ACCESS_FAULT       = 1,
