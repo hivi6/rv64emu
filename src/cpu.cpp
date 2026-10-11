@@ -33,15 +33,40 @@ constexpr std::uint64_t multHighUnsigned(std::uint64_t a, std::uint64_t b);
 
 Cpu::Cpu() : vX{}, vPc{}, vCsr{}, vMode{Cpu::Privilege::MACHINE} {}
 
-uint64_t Cpu::readPc() const {
+std::uint64_t Cpu::readPc() const {
 	return vPc;
 }
 
-uint64_t Cpu::readX(std::size_t index) const {
+std::uint64_t Cpu::readX(std::size_t index) const {
 	return vX.at(index);
 }
 
-uint64_t Cpu::readCsr(std::size_t index) const {
+std::uint64_t Cpu::readCsrInternal(std::size_t index) const {
+	return vCsr.at(index);
+}
+
+std::optional<Cpu::Exception> Cpu::validateCsr(std::size_t index,
+	bool writeAccessRequired) const {
+
+	if (index >= vCsr.size()) 
+		return Exception::ILLEGAL_INSTRUCTION;
+
+	const auto accessPermission = (index >> 8) & 0b11;
+	const auto rwPermission = (index >> 10) & 0b11;
+
+	if (static_cast<std::uint8_t>(readMode()) < accessPermission
+		|| (rwPermission == 0b11 && writeAccessRequired))
+		return Exception::ILLEGAL_INSTRUCTION;
+
+	return std::nullopt;
+}
+
+std::expected<std::uint64_t, Cpu::Exception> Cpu::readCsr(
+	std::size_t index) const {
+
+	const auto error = validateCsr(index, false);
+	if (error) return std::unexpected(error.value());
+
 	return vCsr.at(index);
 }
 
@@ -60,8 +85,18 @@ void Cpu::writeX(std::size_t index, std::uint64_t value) {
 	vX.at(index) = value;
 }
 
-void Cpu::writeCsr(std::size_t index, std::uint64_t value) {
+void Cpu::writeCsrInternal(std::size_t index, std::uint64_t value) {
 	vCsr.at(index) = value;
+}
+
+std::expected<void, Cpu::Exception> Cpu::writeCsr(std::size_t index, 
+	std::uint64_t value) {
+
+	const auto error = validateCsr(index, true);
+	if (error) return std::unexpected(error.value());
+
+	writeCsrInternal(index, value);
+	return {};
 }
 
 void Cpu::writeMode(Cpu::Privilege mode) {
@@ -788,6 +823,120 @@ std::optional<Cpu::Exception> Cpu::execute(Inst inst, Bus &bus) {
 		else res = lhs % rhs;
 
 		writeX(inst.rd, signExtend(static_cast<std::uint32_t>(res), 32));
+		break;
+	}
+
+	case Op::CSRRW: {
+		const auto error = validateCsr(inst.csr, true);
+		if (error) return *error;
+
+		const auto source = readX(inst.rs1);
+		const auto oldCsr = inst.rd != 0 
+			? readCsrInternal(inst.csr) : 0;
+	
+		const auto res = writeCsr(inst.csr, source);
+		if (!res) return res.error();
+
+		writeX(inst.rd, oldCsr);
+		break;
+	}
+
+	case Op::CSRRS: {
+		// Page 66 - Last Paragraph
+		// For both CSRRS and CSRRC, if rs1=x0, then the instruction 
+		// will not write to the CSR at all, and so shall not
+		// cause any of the side effects that might otherwise occur 
+		// on a CSR write, nor raise illegal-instruction exceptions on 
+		// accesses to read-only CSRs.
+		const auto writes = inst.rs1 != 0;
+	
+		const auto error = validateCsr(inst.csr, writes);
+		if (error) return *error;
+
+		const auto source = readX(inst.rs1);
+		const auto oldCsr = readCsrInternal(inst.csr);
+
+		if (writes) {
+			const auto res = writeCsr(inst.csr, oldCsr | source);
+			if (!res) return res.error();
+		}
+
+		writeX(inst.rd, oldCsr);
+		break;
+	}
+
+	case Op::CSRRC: {
+		// Page 66 - Last Paragraph
+		// For both CSRRS and CSRRC, if rs1=x0, then the instruction 
+		// will not write to the CSR at all, and so shall not
+		// cause any of the side effects that might otherwise occur 
+		// on a CSR write, nor raise illegal-instruction exceptions on 
+		// accesses to read-only CSRs.
+		const auto writes = inst.rs1 != 0;
+	
+		const auto error = validateCsr(inst.csr, writes);
+		if (error) return *error;
+
+		const auto source = readX(inst.rs1);
+		const auto oldCsr = readCsrInternal(inst.csr);
+
+		if (writes) {
+			const auto res = writeCsr(inst.csr, oldCsr & ~source);
+			if (!res) return res.error();
+		}
+
+		writeX(inst.rd, oldCsr);
+		break;
+	}
+
+	case Op::CSRRWI: {
+		const auto error = validateCsr(inst.csr, true);
+		if (error) return *error;
+
+		const auto source = inst.rs1;
+		const auto oldCsr = inst.rd != 0 
+			? readCsrInternal(inst.csr) : 0;
+
+		const auto res = writeCsr(inst.csr, source);
+		if (!res) return res.error();
+
+		writeX(inst.rd, oldCsr);
+		break;
+	}
+
+	case Op::CSRRSI: {
+		const auto writes = inst.rs1 != 0;
+	
+		const auto error = validateCsr(inst.csr, writes);
+		if (error) return *error;
+
+		const auto source = inst.rs1;
+		const auto oldCsr = readCsrInternal(inst.csr);
+
+		if (writes) {
+			const auto res = writeCsr(inst.csr, oldCsr | source);
+			if (!res) return res.error();
+		}
+
+		writeX(inst.rd, oldCsr);
+		break;
+	}
+
+	case Op::CSRRCI: {
+		const auto writes = inst.rs1 != 0;
+	
+		const auto error = validateCsr(inst.csr, writes);
+		if (error) return *error;
+
+		const std::uint64_t source = inst.rs1;
+		const auto oldCsr = readCsrInternal(inst.csr);
+
+		if (writes) {
+			const auto res = writeCsr(inst.csr, oldCsr & ~source);
+			if (!res) return res.error();
+		}
+
+		writeX(inst.rd, oldCsr);
 		break;
 	}
 

@@ -103,9 +103,39 @@ public:
 	 * 	index = register index
 	 *
 	 * Returns:
-	 * 	uint64_t = current value of the register index
+	 * 	uint64_t  = current value of the register index
+	 *      Exception = if any access permission error occurs
 	 */
-	std::uint64_t readCsr(std::size_t index) const;
+	std::uint64_t readCsrInternal(std::size_t index) const;
+
+	/**
+	 * Read the csr address and check based on the current cpu state
+	 * If the csr if valid
+	 *
+	 * Parameters:
+	 * 	index               = csr index
+	 *	writeAccessRequired = Provide if write access is required
+	 *
+	 * Returns:
+	 * 	nullopt = if no exception
+	 *      Exception otherwise
+	 */
+	std::optional<Cpu::Exception> validateCsr(std::size_t index,
+		bool writeAccessRequired) const;
+
+	/**
+	 * Read the csr register with index value
+	 * Also validate permission
+	 *
+	 * Parameters:
+	 * 	index = register index
+	 *
+	 * Returns:
+	 * 	uint64_t  = current value of the register index
+	 *      Exception = if any access permission error occurs
+	 */
+	std::expected<std::uint64_t, Exception> readCsr(
+		std::size_t index) const;
 
 	/**
 	 * Read the current mode of the cpu
@@ -138,9 +168,24 @@ public:
 	 *
 	 * Parameters:
 	 * 	index = register index
-	 * 	value    = new value for the register
+	 * 	value = new value for the register
 	 */
-	void writeCsr(std::size_t index, std::uint64_t value);
+	void writeCsrInternal(std::size_t index, std::uint64_t value);
+
+	/**
+	 * Write the csr register with index value
+	 * Also validate permission
+	 *
+	 * Parameters:
+	 * 	index = register index
+	 * 	value = new value for the register
+	 *
+	 * Returns:
+	 * 	void      = if no error
+	 *	Exception = if rw permission error
+	 */
+	std::expected<void, Exception> writeCsr(std::size_t index, 
+		std::uint64_t value);
 
 	/**
 	 * Write the new mode to the cpu
