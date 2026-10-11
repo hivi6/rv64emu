@@ -12,6 +12,7 @@ constexpr std::uint32_t decodeOpcode(std::uint32_t raw);
 constexpr std::uint32_t decodeRd(std::uint32_t raw);
 constexpr std::uint32_t decodeRs1(std::uint32_t raw);
 constexpr std::uint32_t decodeRs2(std::uint32_t raw);
+constexpr std::uint32_t decodeCsr(std::uint32_t raw);
 constexpr std::uint32_t decodeFunct3(std::uint32_t raw);
 constexpr std::uint32_t decodeFunct7(std::uint32_t raw);
 
@@ -82,6 +83,7 @@ std::expected<Cpu::Inst, Cpu::Exception> Cpu::decode(std::uint32_t raw) {
 	const auto rd     = decodeRd(raw);
 	const auto rs1    = decodeRs1(raw);
 	const auto rs2    = decodeRs2(raw);
+	const auto csr    = decodeCsr(raw);
 
 	std::uint64_t imm = 0;
 
@@ -195,6 +197,13 @@ std::expected<Cpu::Inst, Cpu::Exception> Cpu::decode(std::uint32_t raw) {
 		if (imm == 0b000000000001 && rs1 == 0b00000 &&
 			funct3 == 0b000 && rd == 0b00000)
 			op = Op::EBREAK;
+
+		if (funct3 == 0b001)      op = Op::CSRRW;
+		else if (funct3 == 0b010) op = Op::CSRRS;
+		else if (funct3 == 0b011) op = Op::CSRRC;
+		else if (funct3 == 0b101) op = Op::CSRRWI;
+		else if (funct3 == 0b110) op = Op::CSRRSI;
+		else if (funct3 == 0b111) op = Op::CSRRCI;
 	}
 	else if (opcode == 0b0011011) {
 		imm = decodeIFormatImm(raw);
@@ -232,6 +241,7 @@ std::expected<Cpu::Inst, Cpu::Exception> Cpu::decode(std::uint32_t raw) {
 		.rd     = rd,
 		.rs1    = rs1,
 		.rs2    = rs2,
+		.csr    = csr,
 
 		.imm    = imm,
 
@@ -815,6 +825,10 @@ constexpr std::uint32_t decodeRs1(std::uint32_t raw) {
 
 constexpr std::uint32_t decodeRs2(std::uint32_t raw) {
 	return (raw >> 20) & 0b11111;
+}
+
+constexpr std::uint32_t decodeCsr(std::uint32_t raw) {
+	return (raw >> 20) & 0b111111111111;
 }
 
 constexpr std::uint32_t decodeFunct3(std::uint32_t raw) {

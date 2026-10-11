@@ -29,6 +29,7 @@ public:
 	enum class Op {
 		INVALID,
 
+		// I - Extension
 		LUI, AUIPC, JAL, JALR,
 		BEQ, BNE, BLT, BGE, BLTU, BGEU,
 		LB, LH, LW, LD, LBU, LHU, LWU,
@@ -40,9 +41,13 @@ public:
 		ADDIW, SLLIW, SRLIW, SRAIW,
 		ADDW, SUBW, SLLW, SRLW, SRAW,
 
+		// M - Extension
 		MUL, MULH, MULHSU, MULHU,
 		DIV, DIVU, REM, REMU,
 		MULW, DIVW, DIVUW, REMW, REMUW,
+
+		// Zicsr - Extension
+		CSRRW, CSRRS, CSRRC, CSRRWI, CSRRSI, CSRRCI,
 	};
 
 	struct Inst {
@@ -54,6 +59,7 @@ public:
 		std::uint32_t rd;
 		std::uint32_t rs1;
 		std::uint32_t rs2;
+		std::uint32_t csr;
 
 		std::uint64_t imm;
 
