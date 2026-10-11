@@ -30,25 +30,41 @@ constexpr std::uint64_t multHighUnsigned(std::uint64_t a, std::uint64_t b);
 // Definition of Cpu class
 // ========================================
 
-Cpu::Cpu() : vX{}, vPc{} {}
+Cpu::Cpu() : vX{}, vPc{}, vCsr{}, vMode{Cpu::Privilege::MACHINE} {}
 
 uint64_t Cpu::readPc() const {
 	return vPc;
 }
 
-uint64_t Cpu::readX(size_t index) const {
+uint64_t Cpu::readX(std::size_t index) const {
 	return vX.at(index);
 }
 
-void Cpu::writePc(uint64_t value) {
+uint64_t Cpu::readCsr(std::size_t index) const {
+	return vCsr.at(index);
+}
+
+Cpu::Privilege Cpu::readMode() const {
+	return vMode;
+}
+
+void Cpu::writePc(std::uint64_t value) {
 	vPc = value;
 }
 
-void Cpu::writeX(size_t index, uint64_t value) {
+void Cpu::writeX(std::size_t index, std::uint64_t value) {
 	// write protect register 0
 	if (index == 0) return;
 
 	vX.at(index) = value;
+}
+
+void Cpu::writeCsr(std::size_t index, std::uint64_t value) {
+	vCsr.at(index) = value;
+}
+
+void Cpu::writeMode(Cpu::Privilege mode) {
+	vMode = mode;
 }
 
 std::expected<std::uint32_t, Cpu::Exception> Cpu::fetch(Bus &bus) {
@@ -530,7 +546,14 @@ std::optional<Cpu::Exception> Cpu::execute(Inst inst, Bus &bus) {
 	}
 
 	case Op::ECALL: {
-		return Exception::ENVIRONMENT_CALL_FROM_UMODE;
+		auto currentMode = readMode();
+		if (currentMode == Privilege::USER)
+			return Exception::ENVIRONMENT_CALL_FROM_UMODE;
+		else if (currentMode == Privilege::SUPERVISOR)
+			return Exception::ENVIRONMENT_CALL_FROM_SMODE;
+		else if (currentMode == Privilege::MACHINE)
+			return Exception::ENVIRONMENT_CALL_FROM_MMODE;
+		return Exception::ILLEGAL_INSTRUCTION;
 	}
 
 	case Op::EBREAK: {
