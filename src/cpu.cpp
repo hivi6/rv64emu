@@ -277,6 +277,19 @@ std::expected<Cpu::Inst, Cpu::Exception> Cpu::decode(std::uint32_t raw) {
 			else if (ext == 0b11000)        op = Op::AMOMINU_W;
 			else if (ext == 0b11100)        op = Op::AMOMAXU_W;
 		}
+		else if (funct3 == 0b011) {
+			if (ext == 0b00010 && rs2 == 0) op = Op::LR_D;
+			else if (ext == 0b00011)        op = Op::SC_D;
+			else if (ext == 0b00001)        op = Op::AMOSWAP_D;
+			else if (ext == 0b00000)        op = Op::AMOADD_D;
+			else if (ext == 0b00100)        op = Op::AMOXOR_D;
+			else if (ext == 0b01100)        op = Op::AMOAND_D;
+			else if (ext == 0b01000)        op = Op::AMOOR_D;
+			else if (ext == 0b10000)        op = Op::AMOMIN_D;
+			else if (ext == 0b10100)        op = Op::AMOMAX_D;
+			else if (ext == 0b11000)        op = Op::AMOMINU_D;
+			else if (ext == 0b11100)        op = Op::AMOMAXU_D;
+		}
 	}
 
 
