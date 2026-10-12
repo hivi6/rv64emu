@@ -48,6 +48,9 @@ public:
 
 		// Zicsr - Extension
 		CSRRW, CSRRS, CSRRC, CSRRWI, CSRRSI, CSRRCI,
+
+		// A - Extension
+		LR_W, SC_W,
 	};
 
 	struct Inst {
@@ -67,6 +70,8 @@ public:
 		std::uint32_t funct7;
 		std::uint32_t shiftType;
 		std::uint32_t shiftAmt;
+		std::uint32_t rl; // release
+		std::uint32_t aq; // aquire
 	};
 	
 	/**

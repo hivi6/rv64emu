@@ -126,6 +126,8 @@ std::expected<Cpu::Inst, Cpu::Exception> Cpu::decode(std::uint32_t raw) {
 	const auto funct7    = decodeFunct7(raw);
 	const auto shiftType = decodeShiftType(raw);
 	const auto shiftAmt  = decodeShiftAmt(raw);
+	const auto rl        = funct7 & 0b1;
+	const auto aq        = (funct7 >> 1) & 0b1;
 
 	if (opcode == 0b0110111) {
 		imm = decodeUFormatImm(raw);
@@ -260,6 +262,13 @@ std::expected<Cpu::Inst, Cpu::Exception> Cpu::decode(std::uint32_t raw) {
 		else if (funct3 == 0b110 && funct7 == 0b0000001) op = Op::REMW;
 		else if (funct3 == 0b111 && funct7 == 0b0000001) op = Op::REMUW;
 	}
+	else if (opcode == 0b0101111) {
+		const auto ext = (funct7 >> 2);
+		if (funct3 == 0b010) {
+			if (ext == 0b00010 && rs2 == 0) op = Op::LR_W;
+			else if (ext == 0b00011)        op = Op::SC_W;
+		}
+	}
 
 
 
@@ -284,6 +293,8 @@ std::expected<Cpu::Inst, Cpu::Exception> Cpu::decode(std::uint32_t raw) {
 		.funct7    = funct7,
 		.shiftType = shiftType,
 		.shiftAmt  = shiftAmt,
+		.rl        = rl,
+		.aq        = aq,
 	};
 }
 
