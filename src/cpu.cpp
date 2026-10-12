@@ -1007,6 +1007,181 @@ std::optional<Cpu::Exception> Cpu::execute(Inst inst, Bus &bus) {
 		break;
 	}
 
+	case Op::AMOSWAP_W: {
+		const auto addr = readX(inst.rs1);
+		if (addr % 4 != 0)
+			return Exception::STORE_ADDRESS_MISALIGNED;
+
+		const std::uint32_t source = readX(inst.rs2);
+		const auto old = bus.read(addr, 4);
+		if (!old) 
+			return Exception::STORE_ACCESS_FAULT;
+
+		const auto res = source;
+		auto writeSuccess = bus.write(addr, 4, res);
+		if (!writeSuccess)
+			return Exception::STORE_ACCESS_FAULT;
+
+		writeX(inst.rd, signExtend(*old, 32));
+		break;
+	}
+
+	case Op::AMOADD_W: {
+		const auto addr = readX(inst.rs1);
+		if (addr % 4 != 0)
+			return Exception::STORE_ADDRESS_MISALIGNED;
+
+		const std::uint32_t source = readX(inst.rs2);
+		const auto old = bus.read(addr, 4);
+		if (!old) 
+			return Exception::STORE_ACCESS_FAULT;
+
+		const auto res = *old + source;
+		auto writeSuccess = bus.write(addr, 4, res);
+		if (!writeSuccess)
+			return Exception::STORE_ACCESS_FAULT;
+
+		writeX(inst.rd, signExtend(*old, 32));
+		break;
+	}
+
+	case Op::AMOXOR_W: {
+		const auto addr = readX(inst.rs1);
+		if (addr % 4 != 0)
+			return Exception::STORE_ADDRESS_MISALIGNED;
+
+		const std::uint32_t source = readX(inst.rs2);
+		const auto old = bus.read(addr, 4);
+		if (!old) 
+			return Exception::STORE_ACCESS_FAULT;
+
+		const auto res = *old ^ source;
+		auto writeSuccess = bus.write(addr, 4, res);
+		if (!writeSuccess)
+			return Exception::STORE_ACCESS_FAULT;
+
+		writeX(inst.rd, signExtend(*old, 32));
+		break;
+	}
+
+	case Op::AMOAND_W: {
+		const auto addr = readX(inst.rs1);
+		if (addr % 4 != 0)
+			return Exception::STORE_ADDRESS_MISALIGNED;
+
+		const std::uint32_t source = readX(inst.rs2);
+		const auto old = bus.read(addr, 4);
+		if (!old) 
+			return Exception::STORE_ACCESS_FAULT;
+
+		const auto res = *old & source;
+		auto writeSuccess = bus.write(addr, 4, res);
+		if (!writeSuccess)
+			return Exception::STORE_ACCESS_FAULT;
+
+		writeX(inst.rd, signExtend(*old, 32));
+		break;
+	}
+
+	case Op::AMOOR_W: {
+		const auto addr = readX(inst.rs1);
+		if (addr % 4 != 0)
+			return Exception::STORE_ADDRESS_MISALIGNED;
+
+		const std::uint32_t source = readX(inst.rs2);
+		const auto old = bus.read(addr, 4);
+		if (!old) 
+			return Exception::STORE_ACCESS_FAULT;
+
+		const auto res = *old | source;
+		auto writeSuccess = bus.write(addr, 4, res);
+		if (!writeSuccess)
+			return Exception::STORE_ACCESS_FAULT;
+
+		writeX(inst.rd, signExtend(*old, 32));
+		break;
+	}
+
+	case Op::AMOMIN_W: {
+		const auto addr = readX(inst.rs1);
+		if (addr % 4 != 0)
+			return Exception::STORE_ADDRESS_MISALIGNED;
+
+		const std::int32_t source = readX(inst.rs2);
+		const auto old = bus.read(addr, 4);
+		if (!old) 
+			return Exception::STORE_ACCESS_FAULT;
+
+		const auto res = std::min(static_cast<std::int32_t>(*old), 
+			source);
+		auto writeSuccess = bus.write(addr, 4, res);
+		if (!writeSuccess)
+			return Exception::STORE_ACCESS_FAULT;
+
+		writeX(inst.rd, signExtend(*old, 32));
+		break;
+	}
+
+	case Op::AMOMAX_W: {
+		const auto addr = readX(inst.rs1);
+		if (addr % 4 != 0)
+			return Exception::STORE_ADDRESS_MISALIGNED;
+
+		const std::int32_t source = readX(inst.rs2);
+		const auto old = bus.read(addr, 4);
+		if (!old) 
+			return Exception::STORE_ACCESS_FAULT;
+
+		const auto res = std::max(static_cast<std::int32_t>(*old), 
+			source);
+		auto writeSuccess = bus.write(addr, 4, res);
+		if (!writeSuccess)
+			return Exception::STORE_ACCESS_FAULT;
+
+		writeX(inst.rd, signExtend(*old, 32));
+		break;
+	}
+
+	case Op::AMOMINU_W: {
+		const auto addr = readX(inst.rs1);
+		if (addr % 4 != 0)
+			return Exception::STORE_ADDRESS_MISALIGNED;
+
+		const std::uint32_t source = readX(inst.rs2);
+		const auto old = bus.read(addr, 4);
+		if (!old) 
+			return Exception::STORE_ACCESS_FAULT;
+
+		const auto res = std::min(static_cast<std::uint32_t>(*old), 
+			source);
+		auto writeSuccess = bus.write(addr, 4, res);
+		if (!writeSuccess)
+			return Exception::STORE_ACCESS_FAULT;
+
+		writeX(inst.rd, signExtend(*old, 32));
+		break;
+	}
+
+	case Op::AMOMAXU_W: {
+		const auto addr = readX(inst.rs1);
+		if (addr % 4 != 0)
+			return Exception::STORE_ADDRESS_MISALIGNED;
+
+		const std::uint32_t source = readX(inst.rs2);
+		const auto old = bus.read(addr, 4);
+		if (!old) 
+			return Exception::STORE_ACCESS_FAULT;
+
+		const auto res = std::max(static_cast<std::uint32_t>(*old), 
+			source);
+		auto writeSuccess = bus.write(addr, 4, res);
+		if (!writeSuccess)
+			return Exception::STORE_ACCESS_FAULT;
+
+		writeX(inst.rd, signExtend(*old, 32));
+		break;
+	}
+
 	default:
 		return Exception::ILLEGAL_INSTRUCTION;
 	}
