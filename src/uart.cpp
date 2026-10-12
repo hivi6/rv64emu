@@ -27,11 +27,15 @@ std::optional<std::uint64_t> Uart::read(std::uint64_t addr, std::size_t width) {
 }
 
 bool Uart::write(std::uint64_t addr, std::size_t width, std::uint64_t value) {
-	if (addr == base() && width == 1) {
+	if (writeCheck(addr, width)) {
 		vOutputCallback(static_cast<std::uint8_t>(value));
 		return true;
 	}
 	return false;
+}
+
+bool Uart::writeCheck(std::uint64_t addr, std::size_t width) {
+	return addr == base() && width == 1;
 }
 
 };

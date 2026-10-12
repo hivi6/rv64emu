@@ -49,6 +49,15 @@ public:
 	 */
 	virtual bool write(std::uint64_t addr, std::size_t width, 
 		std::uint64_t value) = 0;
+
+	/**
+	 * Check if write is possible
+	 *
+	 * Parameters:
+	 * 	addr  = address where write will be done
+	 * 	width = how much width needs to be write
+	 */
+	virtual bool writeCheck(std::uint64_t addr, std::size_t width) = 0;
 };
 
 };

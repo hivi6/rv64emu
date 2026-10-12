@@ -66,6 +66,18 @@ public:
 	 */
 	bool write(std::uint64_t addr, std::size_t width, 
 		std::uint64_t value) override;
+
+	/**
+	 * Check if write is possible
+	 *
+	 * Parameters:
+	 * 	addr  = address where write will be done
+	 * 	width = how much width needs to be written
+	 *
+	 * Returns:
+	 * 	true if write can be done else false
+	 */
+	bool writeCheck(std::uint64_t addr, std::size_t width) override;
 };
 
 };

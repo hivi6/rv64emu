@@ -44,7 +44,7 @@ std::optional<std::uint64_t> Ram::read(std::uint64_t addr, std::size_t width) {
 }
 
 bool Ram::write(std::uint64_t addr, std::size_t width, std::uint64_t value) {
-	if (!validMemoryWidth(width) || !contains(addr, width)) {
+	if (!writeCheck(addr, width)) {
 		return false;
 	}
 	const auto offset = static_cast<std::size_t>(addr - vBase);
@@ -52,6 +52,10 @@ bool Ram::write(std::uint64_t addr, std::size_t width, std::uint64_t value) {
 		std::span<std::uint8_t>(vBytes).subspan(offset, width);
 	storeLittleEndian(subspan, value);
 	return true;
+}
+
+bool Ram::writeCheck(std::uint64_t addr, std::size_t width) {
+	return (validMemoryWidth(width) && contains(addr, width));
 }
 
 };

@@ -48,6 +48,19 @@ public:
 	 */
 	bool write(std::uint64_t addr, std::size_t width, 
 		std::uint64_t value);
+
+	/**
+	 * check if following address can be written
+	 *
+	 * Parameters:
+	 * 	addr  = address
+	 *	width = width of the value
+	 *
+	 * Returns:
+	 * 	true  = if write was successful
+	 *	false = if write was failure
+	 */
+	bool writeCheck(std::uint64_t addr, std::size_t width);
 };
 
 };

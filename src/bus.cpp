@@ -61,4 +61,12 @@ bool Bus::write(std::uint64_t addr, std::size_t width, std::uint64_t value) {
 	return device->write(addr, width, value);
 }
 
+bool Bus::writeCheck(std::uint64_t addr, std::size_t width) {
+	auto device = find(vDevices, addr, width);
+	if (device == nullptr) {
+		return false;
+	}
+	return device->writeCheck(addr, width);
+}
+
 };

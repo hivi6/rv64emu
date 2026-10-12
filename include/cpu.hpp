@@ -19,7 +19,9 @@ public:
 		INSTRUCTION_ACCESS_FAULT       = 1,
 		ILLEGAL_INSTRUCTION            = 2,
 		BREAKPOINT                     = 3,
+		LOAD_ADDRESS_MISALIGNED        = 4,
 		LOAD_ACCESS_FAULT              = 5,
+		STORE_ADDRESS_MISALIGNED       = 6,
 		STORE_ACCESS_FAULT             = 7,
 		ENVIRONMENT_CALL_FROM_UMODE    = 8,
 		ENVIRONMENT_CALL_FROM_SMODE    = 9,
@@ -72,8 +74,13 @@ public:
 		std::uint32_t funct7;
 		std::uint32_t shiftType;
 		std::uint32_t shiftAmt;
-		std::uint32_t rl; // release
-		std::uint32_t aq; // aquire
+		std::uint32_t rl; // release (not in use; as single core)
+		std::uint32_t aq; // aquire  (not in use; as single core)
+	};
+
+	struct ReservedMemory {
+		std::uint64_t addr;
+		std::size_t   width;
 	};
 	
 	/**
@@ -242,11 +249,11 @@ public:
 	std::optional<Exception> execute(Inst inst, Bus &bus);
 
 private:
-	std::array<uint64_t, 32>   vX;    // General Register for the cpu
-	uint64_t                   vPc;   // Program counter
-	std::array<uint64_t, 4096> vCsr;  // Control & Status Register for cpu
-	Cpu::Privilege             vMode; // Current priviledge mode
-
+	std::array<uint64_t, 32>      vX;              // General Register for the cpu
+	uint64_t                      vPc;             // Program counter
+	std::array<uint64_t, 4096>    vCsr;            // Control & Status Register for cpu
+	Cpu::Privilege                vMode;           // Current priviledge mode
+	std::optional<ReservedMemory> vReservedMemory; // For A Extension
 };
 
 };

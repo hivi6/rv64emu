@@ -960,6 +960,53 @@ std::optional<Cpu::Exception> Cpu::execute(Inst inst, Bus &bus) {
 		break;
 	}
 
+	case Op::LR_W: {
+		const auto addr = readX(inst.rs1);
+		if (addr % 4 != 0)
+			return Exception::LOAD_ADDRESS_MISALIGNED;
+
+		const auto busLoad = bus.read(addr, 4);
+		if (!busLoad)
+			return Exception::LOAD_ACCESS_FAULT;
+
+		vReservedMemory = ReservedMemory{
+			.addr  = addr,
+			.width = 4,
+		};
+
+		auto res = signExtend(*busLoad, 32);
+		writeX(inst.rd, res);
+		break;
+	}
+
+	case Op::SC_W: {
+		const auto addr = readX(inst.rs1);
+		const auto value = readX(inst.rs2);
+		const bool matches = vReservedMemory
+			&& vReservedMemory->addr == addr
+			&& vReservedMemory->width == 4;
+
+		vReservedMemory = std::nullopt;
+
+		if (addr % 4 != 0)
+			return Exception::STORE_ADDRESS_MISALIGNED;
+
+		if (!bus.writeCheck(addr, 4))
+			return Exception::STORE_ACCESS_FAULT;
+
+		if (!matches) {
+			writeX(inst.rd, 1);
+			break;
+		}
+
+		const auto busLoad = bus.write(addr, 4, value);
+		if (!busLoad)
+			return Exception::STORE_ACCESS_FAULT;
+
+		writeX(inst.rd, 0);
+		break;
+	}
+
 	default:
 		return Exception::ILLEGAL_INSTRUCTION;
 	}
