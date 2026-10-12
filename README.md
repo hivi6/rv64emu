@@ -24,7 +24,7 @@ make test
 	- [x] I - Extension
 	- [x] M - Extension
 	- [x] Zicsr - Extension
-	- [ ] A - Extension
+	- [x] A - Extension
 	- [ ] C - Extension
 	- [ ] D - Extension
 - [ ] Priv instructions

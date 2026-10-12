@@ -61,6 +61,12 @@ int main(int argc, char **argv) {
 	}
 
 	string filepath(argv[1]);
+	const bool reportException = argc > 2
+		&& string(argv[2]) == "--report-exception";
+	auto printException = [reportException](Cpu::Exception exception) {
+		if (reportException)
+			cout << "exception : " << static_cast<unsigned>(exception) << endl;
+	};
 	auto bin = loadBin(filepath);
 
 	Ram ram(0, bin.size());
@@ -75,19 +81,28 @@ int main(int argc, char **argv) {
 
 	for (int step = 1; step < 100000; step++) {
 		auto rawInst = cpu.fetch(bus);
-		if (!rawInst) break;
+		if (!rawInst) {
+			printException(rawInst.error());
+			break;
+		}
 
 		std::cout << "STEP: " << step << std::endl;
 
 		auto inst = cpu.decode(*rawInst);
-		if (!inst) break;
+		if (!inst) {
+			printException(inst.error());
+			break;
+		}
 
 		auto exception = cpu.execute(*inst, bus);
 
 		printRegisters(cpu);
 		cout << endl;
 
-		if (exception) break;
+		if (exception) {
+			printException(*exception);
+			break;
+		}
 	}
 
 	return 0;

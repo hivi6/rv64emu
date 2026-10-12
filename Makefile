@@ -21,6 +21,7 @@ RV64_TEST_BIN := $(BUILD_DIR)/rv64-test
 # Scripts for running the tests
 RV64I_TEST_SH  := $(TEST_DIR)/test-i.sh
 RV64M_TEST_SH  := $(TEST_DIR)/test-m.sh
+RV64A_TEST_SH  := $(TEST_DIR)/test-a.sh
 
 UART_TEST_CPP := $(TEST_DIR)/uart/uart-test.cpp
 UART_TEST_OBJ := $(OBJ_DIR)/uart-test.o
@@ -32,19 +33,22 @@ CORE_OBJ := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(CORE_CPP))
 
 OBJ_FILES := $(CORE_OBJ) $(MAIN_OBJ) $(RV64_TEST_OBJ) $(UART_TEST_OBJ)
 
-.PHONY: all clean test test-i test-m test-uart
+.PHONY: all clean test test-i test-m test-a test-uart
 all: $(MAIN_BIN)
 
 clean:
 	rm -rf $(BUILD_DIR)
 
-test: test-i test-m test-uart
+test: test-i test-m test-a test-uart
 
 test-i: $(RV64_TEST_BIN)
 	bash $(RV64I_TEST_SH) $(RV64_TEST_BIN)
 
 test-m: $(RV64_TEST_BIN)
 	bash $(RV64M_TEST_SH) $(RV64_TEST_BIN)
+
+test-a: $(RV64_TEST_BIN)
+	bash $(RV64A_TEST_SH) $(RV64_TEST_BIN)
 
 test-uart: $(UART_TEST_BIN)
 	bash $(UART_TEST_SH) $(UART_TEST_BIN)
